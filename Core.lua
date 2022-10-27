@@ -22,6 +22,11 @@ local dragonRidingAuras = {
 
 local soarSpellId = 369536 -- Soar, Dracthyr Racial
 
+-- track state
+local wasDragonRiding = false
+
+-- store Minimap position
+local minimapPosition = nil
 
 -- stores bars player had shown
 local hiddenBars = {}
@@ -55,7 +60,6 @@ local function isDragonRiding()
          end
       end)
    end
-
    return _isDragonRiding
 end
 
@@ -77,12 +81,29 @@ local function restoreBars()
    end
 end
 
+-- move map
+local function moveMap() 
+   minimapPosition = Minimap:GetPoint()
+   Minimap:SetPoint("CENTER", MainMenuBar, "CENTER", 0, 200)
+end
+
+-- restore map position
+local function restoreMap() 
+   Minimap:SetPoint(minimapPosition)
+end
+
 f:SetScript("OnEvent", function()
    -- check if DragonRiding or using Soar
       if (isDragonRiding()) then
          hideBars() -- if Dragon Riding then hide bars
+         moveMap()
+         wasDragonRiding = true
       else
-         restoreBars() -- if not show/restore bars
+         if (wasDragonRiding) then
+            restoreBars() -- if not show/restore bars
+            restoreMap()
+            wasDragonRiding = false
+         end
       end
 end)
 
